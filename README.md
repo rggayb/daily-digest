@@ -1,290 +1,250 @@
-# Daily Digest - Twitter to Email
+# 📧 Daily Digest
 
-Automated daily digest application that fetches tweets from specified Twitter accounts, filters them using AI, and sends a beautifully formatted digest to your Gmail.
+> Turn Twitter noise into actionable insights. Get AI-curated daily digests from your favorite Twitter accounts, delivered straight to your inbox.
 
-## Features
+## ✨ What is Daily Digest?
 
-- ✅ **Google OAuth Authentication** - Secure login with Google
-- ✅ **Twitter Integration** - Fetch tweets by username (no Twitter API key needed for users)
-- ✅ **AI-Powered Filtering** - Two-stage LLM processing to filter noise and format digest
-- ✅ **LangSmith Integration** - LLM observability, monitoring, and debugging
-- ✅ **Gmail Delivery** - Send digests via Gmail OAuth
-- ✅ **Customizable Settings** - Configure Twitter accounts, schedule time, and time window
-- ✅ **Daily Automated Execution** - Vercel Cron Jobs
-- ✅ **Execution History** - View logs of past digests
+Daily Digest is an intelligent automation tool that monitors Twitter accounts you care about, filters out the noise using AI, and sends you a beautifully formatted email summary on your schedule.
 
-## Tech Stack
+**Perfect for:**
+- 📈 Staying updated on industry trends without endless scrolling
+- 🎯 Following thought leaders efficiently
+- 🚀 Getting actionable insights from multiple sources in one place
+- ⏰ Saving hours of social media browsing time
 
-- **Frontend & Backend**: Next.js 14 (App Router) + TypeScript
-- **Database**: PostgreSQL (Vercel Postgres or Supabase)
-- **Authentication**: NextAuth.js v5 with Google OAuth
-- **Styling**: TailwindCSS + shadcn/ui
-- **AI**: OpenAI (GPT-4o-mini for filtering, GPT-4o for formatting)
-- **LLM Monitoring**: LangSmith (tracing, evaluation, debugging)
-- **Email**: Gmail API via OAuth
-- **Deployment**: Vercel (with Cron Jobs)
+## 🎯 Key Features
 
-## Prerequisites
+- **Smart AI Filtering** - Two-stage AI processing removes low-value content and highlights what matters
+- **Automated Delivery** - Set your schedule and receive digests automatically via Gmail
+- **Flexible Monitoring** - Track multiple Twitter accounts with customizable time windows
+- **Beautiful Format** - Clean, readable HTML emails with direct links to source tweets
+- **One-Click Testing** - Preview your digest before scheduling
+- **Complete Privacy** - Run on your own infrastructure with your own API keys
 
-1. **Google Cloud Console** account for OAuth setup
-2. **PostgreSQL** database (Vercel Postgres or Supabase)
-3. **OpenAI API** key
-4. **Twitter API** key (shared, already configured)
-5. **LangSmith API** key (optional, for LLM monitoring)
+## 🚀 Quick Start
 
-## Setup Instructions
+### Prerequisites
 
-### 1. Clone and Install Dependencies
+You'll need:
+- A Google account (for authentication & Gmail delivery)
+- An OpenAI API key ([get one here](https://platform.openai.com/api-keys))
+- A PostgreSQL database (free options: [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres) or [Supabase](https://supabase.com/))
+- *(Optional)* A LangSmith account for AI monitoring ([free tier available](https://smith.langchain.com/))
+
+### Installation
+
+1. **Clone the repository**
 
 ```bash
+git clone https://github.com/yourusername/daily-digest.git
 cd daily-digest
 npm install
 ```
 
-### 2. Setup Google OAuth
+2. **Set up Google OAuth**
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing one
-3. Enable **Gmail API** and **Google+ API**
-4. Go to **Credentials** → **Create Credentials** → **OAuth 2.0 Client ID**
-5. Configure OAuth consent screen
-6. Add Authorized redirect URIs:
-   - `http://localhost:3000/api/auth/callback/google` (for dev)
-   - `https://your-domain.vercel.app/api/auth/callback/google` (for production)
-7. Copy **Client ID** and **Client Secret**
+   - Visit [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project
+   - Enable the **Gmail API**
+   - Create OAuth 2.0 credentials
+   - Add authorized redirect URIs:
+     - `http://localhost:3000/api/auth/callback/google` (development)
+     - `https://your-domain.vercel.app/api/auth/callback/google` (production)
+   - Save your Client ID and Client Secret
 
-### 3. Setup Database
-
-#### Option A: Vercel Postgres (Recommended for Vercel deployment)
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Link to your Vercel project
-vercel link
-
-# Create Postgres database
-vercel postgres create
-
-# Get connection string
-vercel env pull .env.local
-```
-
-#### Option B: Supabase
-
-1. Go to [Supabase](https://supabase.com/)
-2. Create new project
-3. Copy connection string from Settings → Database
-
-### 4. Configure Environment Variables
-
-Copy `.env.example` to `.env.local`:
+3. **Configure environment variables**
 
 ```bash
 cp .env.example .env.local
 ```
 
-Update the following variables in `.env.local`:
+Edit `.env.local` with your credentials:
 
 ```env
 # Database
-DATABASE_URL="your-postgres-connection-string"
+DATABASE_URL="your-postgresql-connection-string"
 
-# NextAuth
+# Authentication
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="run: openssl rand -base64 32"
+NEXTAUTH_SECRET="generate-with: openssl rand -base64 32"
 
 # Google OAuth
 GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-# Cron Secret (for production)
-CRON_SECRET="run: openssl rand -base64 32"
+# OpenAI
+OPENAI_API_KEY="your-openai-api-key"
 
-# LangSmith (optional - for LLM monitoring)
+# Twitter API (shared key - already configured in code)
+# No action needed
+
+# Cron security
+CRON_SECRET="generate-with: openssl rand -base64 32"
+
+# Optional: AI Monitoring
 LANGCHAIN_TRACING_V2="true"
 LANGCHAIN_API_KEY="your-langsmith-api-key"
-LANGCHAIN_PROJECT="daily-digest-prod"
+LANGCHAIN_PROJECT="daily-digest"
 ```
 
-### 5. Setup Database Schema
+4. **Initialize the database**
 
 ```bash
 npx prisma migrate dev --name init
 npx prisma generate
 ```
 
-### 6. Run Development Server
+5. **Start the development server**
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Visit [http://localhost:3000](http://localhost:3000) and sign in with Google!
 
-## Deployment to Vercel
+## 🌐 Deploy to Production
 
-### 1. Push to GitHub
+### Option 1: Vercel (Recommended)
 
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin your-repo-url
-git push -u origin main
-```
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
 
-### 2. Deploy to Vercel
+1. Push your code to GitHub
+2. Import your repository in [Vercel](https://vercel.com/)
+3. Add all environment variables from `.env.local`
+4. Deploy!
 
-1. Go to [Vercel](https://vercel.com/)
-2. Import your GitHub repository
-3. Add environment variables (same as `.env.local`)
-4. Deploy
+The cron job is pre-configured in `vercel.json` and will automatically run hourly.
 
-### 3. Setup Vercel Postgres
+### Option 2: Other Platforms
 
-```bash
-vercel env pull
-```
+Daily Digest works on any platform that supports:
+- Next.js 14+
+- Node.js 18+
+- Cron jobs or scheduled tasks
 
-Then run migrations on production:
+## 📖 How to Use
 
-```bash
-npx prisma migrate deploy
-```
+1. **Sign In** - Use your Google account to authenticate
+2. **Configure Settings** in the dashboard:
+   - **Twitter Accounts**: Enter usernames to monitor (comma-separated, no @ symbol)
+   - **Schedule**: Choose the hour to receive your digest (0-23)
+   - **Time Window**: How far back to look for tweets (e.g., 24 hours)
+   - **Email**: Where to send the digest (defaults to your Google email)
+3. **Test It** - Click "Run Digest Now" to preview
+4. **Relax** - Your digest will arrive automatically on schedule!
 
-### 4. Setup Cron Job
+## 🛠 Tech Stack
 
-The cron job is already configured in `vercel.json`. It will run every hour and check for digests scheduled at that hour.
+| Category | Technology |
+|----------|-----------|
+| **Framework** | Next.js 14 (App Router) + TypeScript |
+| **Database** | PostgreSQL with Prisma ORM |
+| **Authentication** | NextAuth.js v5 + Google OAuth |
+| **AI** | OpenAI (GPT-4o-mini & GPT-4o) |
+| **Email** | Gmail API |
+| **Styling** | Tailwind CSS + shadcn/ui |
+| **Deployment** | Vercel (with Cron Jobs) |
+| **Monitoring** | LangSmith (optional) |
 
-Make sure to add `CRON_SECRET` to your Vercel environment variables.
-
-## How It Works
-
-### User Flow
-
-1. User signs in with Google (OAuth)
-2. User configures digest settings:
-   - Twitter usernames to monitor (comma-separated)
-   - Schedule time (0-23 hour)
-   - Time window (how far back to fetch tweets)
-   - Recipient email
-3. User can test the digest immediately or wait for daily scheduled execution
-
-### Automated Flow (Cron Job)
-
-1. **Trigger**: Vercel Cron runs every hour (`/api/cron/digest`)
-2. **Fetch**: Get tweets from all configured Twitter usernames
-3. **Filter Time**: Keep only tweets within the time window (e.g., last 24 hours)
-4. **Filter Noise (LLM #1)**: Use GPT-4o-mini to filter out low-value tweets
-5. **Format Digest (LLM #2)**: Use GPT-4o to create a clean HTML digest
-6. **Send Email**: Send formatted digest via Gmail OAuth
-7. **Log**: Save execution log to database
-
-## API Routes
-
-### Public Routes
-
-- `GET /` - Landing page
-- `GET /api/auth/signin` - Sign in page
-- `GET /api/auth/signout` - Sign out
-
-### Protected Routes
-
-- `GET /dashboard` - User dashboard
-- `PUT /api/digest` - Update digest settings
-- `POST /api/digest/run` - Manually trigger digest execution
-
-### Cron Route
-
-- `GET /api/cron/digest` - Automated cron job (secured with CRON_SECRET)
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 daily-digest/
-├── app/
-│   ├── api/
-│   │   ├── auth/[...nextauth]/route.ts  # NextAuth handler
-│   │   ├── cron/digest/route.ts         # Cron job endpoint
-│   │   └── digest/
-│   │       ├── route.ts                 # Update digest
-│   │       └── run/route.ts             # Manual trigger
-│   ├── dashboard/page.tsx               # Dashboard page
-│   ├── globals.css                      # Global styles
-│   ├── layout.tsx                       # Root layout
-│   └── page.tsx                         # Landing page
-├── components/
-│   ├── auth/signin-button.tsx           # Sign in button
-│   ├── dashboard/dashboard-content.tsx  # Dashboard UI
-│   └── ui/                              # shadcn/ui components
-├── lib/
-│   ├── digest-processor.ts              # Main digest logic
-│   ├── gmail-service.ts                 # Gmail API integration
-│   ├── llm-service.ts                   # OpenAI integration
-│   ├── prisma.ts                        # Prisma client
-│   ├── twitter-service.ts               # Twitter API integration
-│   └── utils.ts                         # Utility functions
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   │   ├── auth/         # Authentication endpoints
+│   │   ├── cron/         # Automated cron job
+│   │   └── digest/       # Digest management
+│   ├── dashboard/        # User dashboard
+│   └── page.tsx          # Landing page
+├── components/            # React components
+│   ├── auth/            # Authentication UI
+│   ├── dashboard/       # Dashboard UI
+│   └── ui/              # Reusable UI components
+├── lib/                  # Core business logic
+│   ├── digest-processor.ts   # Main orchestrator
+│   ├── gmail-service.ts      # Email delivery
+│   ├── llm-service.ts        # AI processing
+│   ├── twitter-service.ts    # Twitter integration
+│   └── prisma.ts             # Database client
 ├── prisma/
-│   └── schema.prisma                    # Database schema
-├── auth.ts                              # NextAuth configuration
-├── package.json
-├── tailwind.config.ts
-├── tsconfig.json
-└── vercel.json                          # Vercel cron configuration
+│   └── schema.prisma     # Database schema
+└── vercel.json          # Cron configuration
 ```
 
-## Troubleshooting
+## 🔧 Configuration
 
-### Gmail Not Sending
+### Email Scopes
 
-- Make sure you've enabled **Gmail API** in Google Cloud Console
-- Check that the user has granted **gmail.send** scope during OAuth
-- Verify that `access_token` is not expired (NextAuth should refresh automatically)
+During first sign-in, users must grant these permissions:
+- `openid`, `email`, `profile` - Basic authentication
+- `https://www.googleapis.com/auth/gmail.send` - Send emails on your behalf
 
-### Cron Job Not Running
+### AI Processing
 
-- Verify `CRON_SECRET` is set in Vercel environment variables
-- Check Vercel Cron logs in Vercel dashboard
-- Ensure `vercel.json` is in the root directory
+The digest uses a two-stage AI pipeline:
 
-### Database Connection Issues
+1. **Noise Filter (GPT-4o-mini)** - Fast, cost-effective filtering of irrelevant tweets
+2. **Digest Formatter (GPT-4o)** - Creates polished, readable summaries with key insights
 
-- Verify `DATABASE_URL` is correct
-- Run `npx prisma generate` after schema changes
-- Run `npx prisma migrate deploy` on production
+### Cron Schedule
 
-### OpenAI Rate Limits
+By default, the cron runs **every hour** (configured in `vercel.json`). The system checks which users have digests scheduled for that hour and processes them automatically.
 
-- Monitor your OpenAI usage in OpenAI dashboard
-- Consider reducing the number of tweets processed
-- Add retry logic if needed
+## ❓ FAQ
 
-### LangSmith Not Showing Traces
+**Q: How much does it cost to run?**  
+A: Main costs are OpenAI API usage (~$0.01-0.10 per digest depending on tweet volume) and database hosting (free tier available on Vercel/Supabase).
 
-- Check `LANGCHAIN_TRACING_V2=true` is set
-- Verify API key is correct
-- Wait 10-30 seconds for traces to appear
-- See `LANGSMITH_SETUP.md` for detailed troubleshooting
+**Q: Can I monitor non-public Twitter accounts?**  
+A: No, only public accounts are accessible.
 
-## Future Enhancements
+**Q: What happens if Twitter API is down?**  
+A: The system will log the error and retry on the next scheduled run.
 
-- [ ] Support for multiple digests per user
-- [ ] Custom AI prompts for formatting
-- [ ] Slack integration (alternative to email)
-- [ ] RSS feed output
-- [ ] Tweet sentiment analysis
-- [ ] Weekly/monthly digest options
-- [ ] Export digest as PDF
-- [ ] Analytics dashboard
+**Q: Can I customize the AI prompts?**  
+A: Yes! Edit `lib/llm-service.ts` to modify filtering criteria and formatting.
 
-## License
+**Q: Is my data private?**  
+A: Yes. Everything runs on your infrastructure. Your tweets and emails are never stored permanently.
 
-MIT
+## 🐛 Troubleshooting
 
-## Support
+### Gmail not sending emails
 
-For issues or questions, please create an issue in the GitHub repository.
+- Ensure Gmail API is enabled in Google Cloud Console
+- Verify the `gmail.send` scope was granted during OAuth
+- Check Vercel logs for error messages
 
+### Cron job not running
 
+- Confirm `CRON_SECRET` is set in production environment variables
+- Check Vercel Cron logs in your dashboard
+- Verify `vercel.json` is in the repository root
+
+### Database connection errors
+
+- Verify `DATABASE_URL` format is correct
+- Run `npx prisma generate` after any schema changes
+- For production: `npx prisma migrate deploy`
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+MIT License - feel free to use this project for personal or commercial purposes.
+
+## 🙏 Acknowledgments
+
+Built with:
+- [Next.js](https://nextjs.org/)
+- [OpenAI](https://openai.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Prisma](https://www.prisma.io/)
+- [NextAuth.js](https://next-auth.js.org/)
+
+---
+
+Made with ☕ by developers who value their time
