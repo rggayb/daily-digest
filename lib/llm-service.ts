@@ -2,9 +2,16 @@ import OpenAI from "openai";
 import { traceable } from "langsmith/traceable";
 import { wrapOpenAI } from "langsmith/wrappers";
 
-const openai = wrapOpenAI(new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-}));
+let openai: ReturnType<typeof wrapOpenAI> | null = null;
+
+function getOpenAI() {
+  if (!openai) {
+    openai = wrapOpenAI(new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    }));
+  }
+  return openai;
+}
 
 interface TweetData {
   author_name: string;
@@ -86,7 +93,7 @@ Input tweets:
 ${JSON.stringify(tweets, null, 2)}`;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.3,
@@ -228,7 +235,7 @@ ${JSON.stringify(filteredTweets, null, 2)}
 Return only the JSON object, nothing else.`;
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.5,
