@@ -116,6 +116,7 @@ export function DashboardContent({ digest, user }: { digest: Digest; user: User 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               {user.image && (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={user.image} alt="" className="w-8 h-8 rounded-full" />
               )}
               <span className="text-sm text-gray-700">{user.email}</span>
@@ -266,7 +267,14 @@ export function DashboardContent({ digest, user }: { digest: Digest; user: User 
                           />
                           <div>
                             <p className="text-sm font-medium">
-                              {new Date(log.executedAt).toLocaleString()}
+                              {new Date(log.executedAt).toLocaleString("en-US", {
+                                timeZone: "Asia/Jakarta",
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </p>
                             <p className="text-xs text-gray-500">
                               Scanned: {log.totalScanned} • Selected: {log.totalSelected}
